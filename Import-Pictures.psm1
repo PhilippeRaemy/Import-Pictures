@@ -1,4 +1,5 @@
-﻿Function Import-Pictures {
+﻿
+Function Import-Pictures {
 <#
 .SYNOPSIS
     This function imports and orders pictures from a memory card into computer folder
@@ -75,7 +76,10 @@
         [string]$TargetFolder = 'd:\users\public\pictures',
 
         [Parameter(Mandatory=$False)]
-        [string]$ExcludeTargetFolder,
+        [string[]]$ExcludeTargetFolder,
+
+        [Parameter(Mandatory=$False)]
+        [string[]]$Select = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),
 
         [Parameter(Mandatory=$False)]
         [string]$SubFolder,
@@ -103,20 +107,24 @@
     } # End Begin block
 
     Process {
-        # Start of PROCESS block.
-        Write-Verbose -Message "Entering the PROCESS block [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)]."
+        Function Select-Dates {
+            Param(
+            [Parameter(Mandatory=$False)] [object]$File
+        )
+            Process {
+                echo $File
+            }
+        }
+        dir $Select -Recurse | Select-Dates 
 
-
-        # Add additional code here.
-
-        
     } # End of PROCESS block.
 
     End {
         # Start of END block.
         Write-Verbose -Message "Entering the END block [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)]."
-
+ 
         # Add additional code here.
-
+ 
     } # End of the END Block.
-} # End Function
+
+}
