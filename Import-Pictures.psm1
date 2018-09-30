@@ -79,7 +79,7 @@ Function Import-Pictures {
         [string[]]$ExcludeTargetFolder,
 
         [Parameter(Mandatory=$False)]
-        [string[]]$Select = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),
+        [string[]]$Filter = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),
 
         [Parameter(Mandatory=$False)]
         [string]$SubFolder,
@@ -88,10 +88,10 @@ Function Import-Pictures {
         [string]$Suffix,
 
         [Parameter(Mandatory=$False)]
-        [DateTime]$MinDate,
+        [DateTime]$MinDate = [System.DateTime]::MinDate,
 
         [Parameter(Mandatory=$False)]
-        [DateTime]$MaxDate,
+        [DateTime]$MaxDate = [System.DateTime]::MaxDate,
 
         [Parameter(Mandatory=$False)]
         [int]$Offsethours
@@ -107,15 +107,18 @@ Function Import-Pictures {
     } # End Begin block
 
     Process {
-        Function Select-Dates {
+        Function Add-Name {
             Param(
-            [Parameter(Mandatory=$False)] [object]$File
+            [Parameter(Mandatory=$True,ValueFromPipeline=$True)] [object]$File
         )
             Process {
                 echo $File
             }
         }
-        dir $Select -Recurse | Select-Dates 
+        dir -Filter $Filter -Recurse `
+            | Where-Object -Property CreationTime -GE $MinDate `
+            | Where-Object -Property CreationTime -LE $MaxDate `
+            | Where-Object -FilterScript {echo $_}
 
     } # End of PROCESS block.
 
