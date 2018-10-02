@@ -1,4 +1,20 @@
-﻿
+Function Convert-Statistics {
+param(
+    [parameter(ValueFromPipeline=$true)]
+    [System.IO.FileInfo]
+    $file
+)
+    Begin{
+        $countFiles = 0
+        $totalSize = 0
+    }
+ 
+    PROCESS
+    {
+        echo @{File = $file; TotalSize = $totalSize + $file.Length}
+    }
+}
+
 Function Import-Pictures {
 <#
 .SYNOPSIS
@@ -76,34 +92,45 @@ Function Import-Pictures {
         [string]$TargetFolder = 'd:\users\public\pictures',
 
         [Parameter(Mandatory=$False)]
-        [string[]]$ExcludeTargetFolder,
+        [string[]]$ExcludeTargetFolder = '',
 
         [Parameter(Mandatory=$False)]
         [string[]]$Filter = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),
 
         [Parameter(Mandatory=$False)]
-        [string]$SubFolder,
+        [string]$SubFolder = '',
 
         [Parameter(Mandatory=$False)]
-        [string]$Suffix,
+        [string]$Suffix = '',
 
         [Parameter(Mandatory=$False)]
-        [DateTime]$MinDate = [System.DateTime]::MinDate,
+        [DateTime]$MinDate = (New-Object System.DateTime(1900,1,1)),
 
         [Parameter(Mandatory=$False)]
-        [DateTime]$MaxDate = [System.DateTime]::MaxDate,
+        [DateTime]$MaxDate = (New-Object System.DateTime(2500,1,1)),
 
         [Parameter(Mandatory=$False)]
-        [int]$Offsethours
+        [int]$Offsethours = 0
 
     )
 
     Begin {
         # Start of the BEGIN block.
-        Write-Verbose -Message "Entering the BEGIN block [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)]."
+        Write-Verbose -Message "Starting [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] with parameters:"
+        Write-Verbose (@{
+            Command             = $Command            ;
+            DryRun              = $DryRun             ;
+            Force               = $Force              ;
+            TargetFolder        = $TargetFolder       ;
+            ExcludeTargetFolder = $ExcludeTargetFolder;
+            Filter              = $Filter             ;
+            SubFolder           = $SubFolder          ;
+            Suffix              = $Suffix             ;
+            MinDate             = $MinDate            ;
+            MaxDate             = $MaxDate            ;
+            Offsethours         = $Offsethours
+        } | Out-String)
 
-        # Add additional code here.
-        
     } # End Begin block
 
     Process {
@@ -115,10 +142,13 @@ Function Import-Pictures {
                 echo $File
             }
         }
-        dir -Filter $Filter -Recurse `
+
+        dir $Filter -Recurse `
             | Where-Object -Property CreationTime -GE $MinDate `
             | Where-Object -Property CreationTime -LE $MaxDate `
-            | Where-Object -FilterScript {echo $_}
+            | Convert-Statistics `
+            | Format-Table
+            # | Where-Object -FilterScript {echo $_}
 
     } # End of PROCESS block.
 
@@ -131,3 +161,4 @@ Function Import-Pictures {
     } # End of the END Block.
 
 }
+
