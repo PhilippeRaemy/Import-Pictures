@@ -1,20 +1,3 @@
-Function Convert-Statistics {
-param(
-    [parameter(ValueFromPipeline=$true)]
-    [System.IO.FileInfo]
-    $file
-)
-    Begin{
-        $countFiles = 0
-        $totalSize = 0
-    }
- 
-    PROCESS
-    {
-        echo @{File = $file; TotalSize = $totalSize + $file.Length}
-    }
-}
-
 Function Import-Pictures {
 <#
 .SYNOPSIS
@@ -134,14 +117,23 @@ Function Import-Pictures {
     } # End Begin block
 
     Process {
-        Function Add-Name {
-            Param(
-            [Parameter(Mandatory=$True,ValueFromPipeline=$True)] [object]$File
+        Function Convert-Statistics {
+        param(
+            [parameter(ValueFromPipeline=$true)]
+            [System.IO.FileInfo]
+            $file
         )
-            Process {
-                echo $File
+            Begin{
+                $countFiles = 0
+                $totalSize = 0
+            }
+ 
+            PROCESS
+            {
+                echo @{File = $file; TotalSize = $totalSize + $file.Length}
             }
         }
+
 
         dir $Filter -Recurse `
             | Where-Object -Property CreationTime -GE $MinDate `
