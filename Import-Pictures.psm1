@@ -119,9 +119,9 @@ Function Import-Pictures {
     Process {
         Function Convert-Statistics {
         param(
-            [parameter(ValueFromPipeline=$true)]
-            [System.IO.FileInfo]
-            $file
+            [parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,
+            [parameter(Mandatory=$true)]         [int]                $expectedSize,
+            [parameter(Mandatory=$true)]         [int]                $expectedCount 
         )
             Begin{
                 $countFiles = 0
@@ -132,16 +132,29 @@ Function Import-Pictures {
             {
                 $totalSize += $file.Length
                 $countFiles++;
-                echo @{File = $file; TotalSize = $totalSize}
+                echo @{
+                    File           = $file; 
+                    TotalSize      = $totalSize; 
+                    Length         = $file.Length;
+                    Position       = $countFiles;
+                    ItemWeight     = ($file.Length) / $expectedSize;
+                    Progress       = $countFiles / $expectedCount;
+                    ProgressWeight = $totalSize / $expectedSize;
+                }
             }
         }
 
-
-        dir $Filter -Recurse `
+        $workAtHand = dir $Filter -Recurse `
             | Where-Object -Property CreationTime -GE $MinDate `
-            | Where-Object -Property CreationTime -LE $MaxDate `
-            | Convert-Statistics `
-            | Format-Table
+            | Where-Object -Property CreationTime -LE $MaxDate
+        
+        $totalSize = $workAtHand | Measure -Property Length -Sum
+        $totalSize.Sum
+        
+        $workAtHand `
+            | Convert-Statistics -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Format-Table
+        
+
             # | Where-Object -FilterScript {echo $_}
 
     } # End of PROCESS block.
@@ -155,4 +168,3 @@ Function Import-Pictures {
     } # End of the END Block.
 
 }
-
