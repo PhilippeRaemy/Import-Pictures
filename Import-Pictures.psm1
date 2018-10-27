@@ -123,6 +123,13 @@ Function Import-Pictures {
             }
         }
 
+        Function Format-Output{
+            param(
+                [Parameter(ValueFromPipeline=$true)] $f
+            )
+            return $f
+        }
+
         Function Invoke-Action{
             param(
                 [Parameter(ValueFromPipeline=$true)] $f,
@@ -135,7 +142,7 @@ Function Import-Pictures {
             PROCESS
             {
                 $f['Message'] = 'Processed';
-                echo $f
+                return $f
             }
         }
 
@@ -210,7 +217,7 @@ Function Import-Pictures {
         $totalSize.Sum
         
         $workAtHand `
-            | New-FileDetails  -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location `            | Invoke-Action -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Table
+            | New-FileDetails  -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location `            | Invoke-Action -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output
         
 
             # | Where-Object -FilterScript {echo $_}
