@@ -75,7 +75,7 @@ Function Import-Pictures {
         [string]$TargetFolder = 'd:\users\public\pictures',
 
         [Parameter(Mandatory=$False)]
-        [string[]]$ExcludeTargetFolder = '',
+        [string[]]$ExcludeTargetFolder,
 
         [Parameter(Mandatory=$False)]
         [string[]]$Filter = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),
@@ -135,7 +135,7 @@ Function Import-Pictures {
                 echo @{
                     TotalSize      = $totalSize; 
                     Length         = $file.Length;
-                    CreationTime      = $file.Length;
+                    CreationTime   = $file.Length;
                     Position       = $countFiles;
                     ItemWeight     = ($file.Length) / $expectedSize;
                     Progress       = $countFiles / $expectedCount;
@@ -157,7 +157,11 @@ Function Import-Pictures {
 
         Function Resolve-Location{
         param(
-            [parameter(ValueFromPipeline=$true)] $f
+            [parameter(ValueFromPipeline=$true)] $f,
+            [Parameter(Mandatory=$False)] [string]  $TargetFolder, 
+            [Parameter(Mandatory=$False)] [string]  $SubFolder   ,     
+            [Parameter(Mandatory=$False)] [string[]]$ExcludeTargetFolder
+
         )
             PROCESS
             {
