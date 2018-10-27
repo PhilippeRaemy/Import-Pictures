@@ -110,7 +110,7 @@ Function Import-Pictures {
             {
                 $totalSize += $file.Length
                 $countFiles++;
-                echo @{
+                return @{
                     TotalSize      = $totalSize; 
                     Length         = $file.Length;
                     CreationTime   = $file.Length;
