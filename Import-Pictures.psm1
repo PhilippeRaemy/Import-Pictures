@@ -130,11 +130,13 @@ Function Import-Pictures {
  
             PROCESS
             {
-                echo @{File = $file; TotalSize = $totalSize + $file.Length}
+                $totalSize += $file.Length
+                $countFiles++;
+                echo @{File = $file; TotalSize = $totalSize}
             }
         }
 
-
+        
         dir $Filter -Recurse `
             | Where-Object -Property CreationTime -GE $MinDate `
             | Where-Object -Property CreationTime -LE $MaxDate `
