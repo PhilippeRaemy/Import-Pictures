@@ -136,7 +136,7 @@ Function Import-Pictures {
             }
         }
 
-        
+
         dir $Filter -Recurse `
             | Where-Object -Property CreationTime -GE $MinDate `
             | Where-Object -Property CreationTime -LE $MaxDate `
