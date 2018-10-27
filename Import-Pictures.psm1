@@ -214,14 +214,10 @@ Function Import-Pictures {
             | Where-Object -Property CreationTime -LE $MaxDate
         
         $totalSize = $workAtHand | Measure -Property Length -Sum
-        $totalSize.Sum
         
         $workAtHand `
             | New-FileDetails  -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location `            | Invoke-Action -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output
         
-
-            # | Where-Object -FilterScript {echo $_}
-
     } # End of PROCESS block.
 
     End {
