@@ -216,7 +216,7 @@ Function Import-Pictures {
         $totalSize = $workAtHand | Measure -Property Length -Sum
         
         $workAtHand `
-            | New-FileDetails  -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location `            | Invoke-Action -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output
+            | New-FileDetails  -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder `            | Invoke-Action -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output
         
     } # End of PROCESS block.
 
