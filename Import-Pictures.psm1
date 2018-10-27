@@ -59,8 +59,6 @@ Function Import-Pictures {
 #>
     [CmdletBinding(PositionalBinding=$false)]  # Add cmdlet features.
     Param (
-        # Define parameters below, each separated by a comma
-
         [Parameter(Mandatory=$True )] [ValidateSet('Copy', 'Move', 'Offset')] [string]$Command,
         [Parameter(Mandatory=$False)] [switch]   $DryRun,
         [Parameter(Mandatory=$False)] [switch]   $Force,
