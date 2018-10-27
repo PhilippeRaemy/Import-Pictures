@@ -120,12 +120,12 @@ Function Import-Pictures {
         Function Convert-Statistics {
         param(
             [parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,
-            [parameter(Mandatory=$true)]         [int]                $expectedSize,
+            [parameter(Mandatory=$true)]         [int64]              $expectedSize,
             [parameter(Mandatory=$true)]         [int]                $expectedCount 
         )
             Begin{
                 $countFiles = 0
-                $totalSize = 0
+                $totalSize = [int64]0
             }
  
             PROCESS
