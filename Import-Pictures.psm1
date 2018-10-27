@@ -75,7 +75,7 @@ Function Import-Pictures {
 
     Begin {
         # Start of the BEGIN block.
-        Write-Verbose -Message "Starting [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] with parameters:"
+        Write-Verbose -Message "Starting [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] with Parameters:"
         Write-Verbose (@{
             Command             = $Command            ;
             DryRun              = $DryRun             ;
@@ -95,9 +95,9 @@ Function Import-Pictures {
     Process {
         Function New-FileDetails{
         param(
-            [parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,
-            [parameter(Mandatory=$true)]         [int64]              $expectedSize,
-            [parameter(Mandatory=$true)]         [int]                $expectedCount 
+            [Parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,
+            [Parameter(Mandatory=$true)]         [int64]              $expectedSize,
+            [Parameter(Mandatory=$true)]         [int]                $expectedCount 
         )
             Begin{
                 $countFiles = 0
@@ -123,7 +123,7 @@ Function Import-Pictures {
 
         Function Invoke-Action{
         param(
-            [parameter(ValueFromPipeline=$true)] $f,
+            [Parameter(ValueFromPipeline=$true)] $f,
             [Parameter(Mandatory=$True )] [string] $Command,
             [Parameter(Mandatory=$False)] [bool]   $DryRun,
             [Parameter(Mandatory=$False)] [bool]   $Force
@@ -137,7 +137,7 @@ Function Import-Pictures {
 
         Function Where-NotExcluded{
         param(
-            [parameter(ValueFromPipeline=$true)] $f,     
+            [Parameter(ValueFromPipeline=$true)] $f,     
             [Parameter(Mandatory=$False)] [string[]]$ExcludeTargetFolder
         )
             PROCESS
@@ -155,7 +155,7 @@ Function Import-Pictures {
 
         Function Resolve-Location{
         param(
-            [parameter(ValueFromPipeline=$true)] $f,
+            [Parameter(ValueFromPipeline=$true)] $f,
             [Parameter(Mandatory=$False)] [string]  $TargetFolder, 
             [Parameter(Mandatory=$False)] [string]  $SubFolder   ,     
             [Parameter(Mandatory=$False)] [string[]]$ExcludeTargetFolder
