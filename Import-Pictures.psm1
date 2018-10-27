@@ -110,7 +110,7 @@ Function Import-Pictures {
             {
                 $totalSize += $file.Length
                 $countFiles++;
-                return @{
+                Write-Output @{
                     TotalSize      = $totalSize; 
                     Length         = $file.Length;
                     CreationTime   = $file.Length;
@@ -120,6 +120,7 @@ Function Import-Pictures {
                     ProgressWeight = $totalSize / $expectedSize;
                     File           = $file; 
                 }
+                Write-Verbose "$file, $countFiles"
             }
         }
 
@@ -127,7 +128,10 @@ Function Import-Pictures {
             param(
                 [Parameter(ValueFromPipeline=$true)] $f
             )
-            return $f
+            PROCESS
+            {
+                return $f
+            }
         }
 
         Function Invoke-Action{
@@ -169,44 +173,47 @@ Function Import-Pictures {
                 [Parameter(Mandatory=$False)] [string]  $SubFolder   ,     
                 [Parameter(Mandatory=$False)] [string[]]$ExcludeTargetFolder
             )
-
-            $creationTime = $f.file.CreationTime
-            [ref] $creationTimeRef = $creationTime
-            $fileIsDated = $false
-            if($f.file.Name.Length -ge 15){
-                $fileIsDated = [DateTime]::TryParseExact($f.file.Name.Substring(0, 15), `
-                    'yyyyMMdd_HHmmss', `
-                    [System.Globalization.CultureInfo]::InvariantCulture, `
-                    [System.Globalization.DateTimeStyles]::None,`
-                    $creationTimeRef)
-                if($fileIsDated) { 
-                    $creationTime = $creationTimeRef.Value
+            PROCESS
+            {
+                Write-Verbose "Resolve-Location: $($f.file) $($f.Position)"
+                $creationTime = $f.file.CreationTime
+                [ref] $creationTimeRef = $creationTime
+                $fileIsDated = $false
+                if($f.file.Name.Length -ge 15){
+                    $fileIsDated = [DateTime]::TryParseExact($f.file.Name.Substring(0, 15), `
+                        'yyyyMMdd_HHmmss', `
+                        [System.Globalization.CultureInfo]::InvariantCulture, `
+                        [System.Globalization.DateTimeStyles]::None,`
+                        $creationTimeRef)
+                    if($fileIsDated) { 
+                        $creationTime = $creationTimeRef.Value
+                    }
                 }
-            }
 
-            $filename = if($fileIsDated) {$f.file.Name} else {$creationTime.ToString("yyyyMMdd_HHmmss_") + $f.file.Name}
+                $filename = if($fileIsDated) {$f.file.Name} else {$creationTime.ToString("yyyyMMdd_HHmmss_") + $f.file.Name}
 
-            $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
-            # md $folderRoot -ErrorAction SilentlyContinue
-            if(Test-Path -Path $folderRoot){
-                pushd $folderRoot
-                $folder = dir -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue `
-                    | Where-NotExcluded $ExcludeTargetFolder `
-                    | select -First 1
-                popd
-            }
-            else {
-                $folder = $null
-            }
+                $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
+                # md $folderRoot -ErrorAction SilentlyContinue
+                if(Test-Path -Path $folderRoot){
+                    pushd $folderRoot
+                    $folder = dir -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue `
+                        | Where-NotExcluded $ExcludeTargetFolder `
+                        | select -First 1
+                    popd
+                }
+                else {
+                    $folder = $null
+                }
                 
-            Write-Verbose "folderRoot is $folderRoot"
-            Write-Verbose "folder is $folder"
-            if(-not $folder){
-                $folder = [System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))
-            }
+                Write-Verbose "folderRoot is $folderRoot"
+                Write-Verbose "folder is $folder"
+                if(-not $folder){
+                    $folder = [System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))
+                }
                 
-            $f['Location'] = [System.IO.Path]::Combine($folder, $filename)
-            return $f
+                $f['Location'] = [System.IO.Path]::Combine($folder, $filename)
+                Write-Output $f
+            }
         }
 
         $workAtHand = dir $Filter -Recurse `
@@ -216,7 +223,8 @@ Function Import-Pictures {
         $totalSize = $workAtHand | Measure -Property Length -Sum
         
         $workAtHand `
-            | New-FileDetails  -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder `            | Invoke-Action -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output
+            | New-FileDetails  -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder `            | Invoke-Action -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output `
+            | Format-Table
         
     } # End of PROCESS block.
 
