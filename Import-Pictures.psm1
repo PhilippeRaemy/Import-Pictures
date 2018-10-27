@@ -178,8 +178,8 @@ Function Import-Pictures {
                     $folder = $null
                 }
                 
-                echo "folderRoot is $folderRoot"
-                echo "folder is $folder"
+                Write-Verbose "folderRoot is $folderRoot"
+                Write-Verbose "folder is $folder"
                 if(-not $folder){
                     $folder = [System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))
                 }
@@ -206,7 +206,7 @@ Function Import-Pictures {
 
     End {
         # Start of END block.
-        Write-Verbose -Message "Entering the END block [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)]."
+        # Write-Verbose -Message "Entering the END block [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)]."
  
         # Add additional code here.
  
