@@ -61,39 +61,17 @@ Function Import-Pictures {
     Param (
         # Define parameters below, each separated by a comma
 
-        [Parameter(Mandatory=$True)]
-        [ValidateSet('Copy', 'Move', 'Offset')]
-        [string]$Command,
-
-        [Parameter(Mandatory=$False)]
-        [switch]$DryRun,
-
-        [Parameter(Mandatory=$False)]
-        [switch]$Force,
-
-        [Parameter(Mandatory=$False)]
-        [string]$TargetFolder = 'd:\users\public\pictures',
-
-        [Parameter(Mandatory=$False)]
-        [string[]]$ExcludeTargetFolder,
-
-        [Parameter(Mandatory=$False)]
-        [string[]]$Filter = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),
-
-        [Parameter(Mandatory=$False)]
-        [string]$SubFolder = '',
-
-        [Parameter(Mandatory=$False)]
-        [string]$Suffix = '',
-
-        [Parameter(Mandatory=$False)]
-        [DateTime]$MinDate = (New-Object System.DateTime(1900,1,1)),
-
-        [Parameter(Mandatory=$False)]
-        [DateTime]$MaxDate = (New-Object System.DateTime(2500,1,1)),
-
-        [Parameter(Mandatory=$False)]
-        [int]$Offsethours = 0
+        [Parameter(Mandatory=$True )] [ValidateSet('Copy', 'Move', 'Offset')] [string]$Command,
+        [Parameter(Mandatory=$False)] [switch]   $DryRun,
+        [Parameter(Mandatory=$False)] [switch]   $Force,
+        [Parameter(Mandatory=$False)] [string]   $TargetFolder = 'd:\users\public\pictures',
+        [Parameter(Mandatory=$False)] [string[]] $ExcludeTargetFolder,
+        [Parameter(Mandatory=$False)] [string[]] $Filter       = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),
+        [Parameter(Mandatory=$False)] [string]   $SubFolder    = '',
+        [Parameter(Mandatory=$False)] [string]   $Suffix       = '',
+        [Parameter(Mandatory=$False)] [DateTime] $MinDate      = (New-Object System.DateTime(1900,1,1)),
+        [Parameter(Mandatory=$False)] [DateTime] $MaxDate      = (New-Object System.DateTime(2500,1,1)),
+        [Parameter(Mandatory=$False)] [int]      $Offsethours  = 0
 
     )
 
