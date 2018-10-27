@@ -117,7 +117,7 @@ Function Import-Pictures {
     } # End Begin block
 
     Process {
-        Function New-FileDetails     {
+        Function New-FileDetails{
         param(
             [parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,
             [parameter(Mandatory=$true)]         [int64]              $expectedSize,
@@ -133,13 +133,13 @@ Function Import-Pictures {
                 $totalSize += $file.Length
                 $countFiles++;
                 echo @{
-                    File           = $file; 
                     TotalSize      = $totalSize; 
                     Length         = $file.Length;
                     Position       = $countFiles;
                     ItemWeight     = ($file.Length) / $expectedSize;
                     Progress       = $countFiles / $expectedCount;
                     ProgressWeight = $totalSize / $expectedSize;
+                    File           = $file; 
                 }
             }
         }
