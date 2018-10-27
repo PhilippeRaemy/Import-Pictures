@@ -144,6 +144,17 @@ Function Import-Pictures {
             }
         }
 
+        Function Resolve-Location{
+        param(
+            [parameter(ValueFromPipeline=$true)] $f
+        )
+            PROCESS
+            {
+                $f['Location'] = $f.file.FullName
+                echo $f
+            }
+        }
+
         $workAtHand = dir $Filter -Recurse `
             | Where-Object -Property CreationTime -GE $MinDate `
             | Where-Object -Property CreationTime -LE $MaxDate
@@ -152,7 +163,7 @@ Function Import-Pictures {
         $totalSize.Sum
         
         $workAtHand `
-            | New-FileDetails     -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Format-Table
+            | New-FileDetails     -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location `            | Format-Table
         
 
             # | Where-Object -FilterScript {echo $_}
