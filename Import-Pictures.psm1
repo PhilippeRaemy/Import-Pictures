@@ -155,6 +155,24 @@ Function Import-Pictures {
             }
         }
 
+        Function Where-NotExcluded{
+        param(
+            [parameter(ValueFromPipeline=$true)] $f,     
+            [Parameter(Mandatory=$False)] [string[]]$ExcludeTargetFolder
+        )
+            PROCESS
+            {
+                if($ExcludeTargetFolder){
+                    $split = $_.Split([System.IO.Path]::DirectorySeparatorChar)
+                    if($ExcludeTargetFolder | %{$split -match $_ }){
+                        return;
+                    }
+                }
+                return $f
+            }
+        }
+
+
         Function Resolve-Location{
         param(
             [parameter(ValueFromPipeline=$true)] $f,
@@ -185,7 +203,9 @@ Function Import-Pictures {
                 # md $folderRoot -ErrorAction SilentlyContinue
                 if(Test-Path -Path $folderRoot){
                     pushd $folderRoot
-                    $folder = dir -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue | select -First 1
+                    $folder = dir -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue `
+                        | Where-NotExcluded $ExcludeTargetFolder `
+                        | select -First 1
                     popd
                 }
                 else {
