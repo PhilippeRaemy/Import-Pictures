@@ -1,334 +1,0 @@
-[1mdiff --git a/Import-Pictures.psm1 b/Import-Pictures.psm1[m
-[1mindex 59c870d..9d13611 100644[m
-[1m--- a/Import-Pictures.psm1[m
-[1m+++ b/Import-Pictures.psm1[m
-[36m@@ -1,158 +1,171 @@[m
-[31m-Function Import-Pictures {[m
-[31m-<#[m
-[31m-.SYNOPSIS[m
-[31m-    This function imports and orders pictures from a memory card into computer folder[m
-[31m-[m
-[31m-.DESCRIPTION[m
-[31m-    This function imports pictures and other acceptable files from the current working folder[m
-[31m-    (usually a memory card), and imports them in a computer folder.[m
-[31m-    Onte way, the filenames are timestamped, i.e. the date and time of creation of the file are used to [m
-[31m-    prefix the file name.[m
-[31m-    Additionnaly, the files are arranged under the chosen target folder in a directory tree similar to[m
-[31m-        ...\yyyy\yyyymm\yyyymmdd[m
-[31m-    If such a directory does not exist, it is created[m
-[31m-    If such a directory does exist, or a similar directory with a name or a description suffix after the day date, this directory is used[m
-[31m-[m
-[31m-[m
-[31m-.PARAMETER Command[m
-[31m-    Indicates which action is to be performed:[m
-[31m-        Copy: the pictures are copied from the source to the target[m
-[31m-        Move: the pictures are moved from the source to the target, i.e. they are deleted from the source[m
-[31m-        Offset: the timestamps included in the names of the files in the the target folder are offset by a provided nmber of hours[m
-[31m-[m
-[31m-.PARAMETER DryRun[m
-[31m-    The action is not actually performed[m
-[31m-[m
-[31m-.PARAMETER Force[m
-[31m-    Existing files on the target folder are overwritten (without further confirmation)[m
-[31m-[m
-[31m-.PARAMETER TargetFolder[m
-[31m-    The root folder targeted by the import[m
-[31m-[m
-[31m-.PARAMETER ExcludeTargetFolder[m
-[31m-    These folders are not to be used as target, even if the day date matches.[m
-[31m-[m
-[31m-.PARAMETER SubFolder[m
-[31m-    If provided, this value is used as an additional directory level under the year level.[m
-[31m-[m
-[31m-.PARAMETER Suffix[m
-[31m-    If provided, this value is added to the file names (for instance to identify the camera used to shoot the pictures)[m
-[31m-[m
-[31m-.PARAMETER MinDate[m
-[31m-    The files created before this date are not imported[m
-[31m-[m
-[31m-.PARAMETER MaxDate[m
-[31m-    The files created before after date are not imported[m
-[31m-[m
-[31m-.PARAMETER Offset[m
-[31m-    The creation date of the files is offset by this number of hours before timestamping their names[m
-[31m-[m
-[31m-.EXAMPLE[m
-[31m-    ...[m
-[31m-    [m
-[31m-.NOTES[m
-[31m-    Author: Philippe Raemy[m
-[31m-    Last Edit: 2018-27-09[m
-[31m-    Version 1.0 - initial release[m
-[31m-[m
-[31m-[m
-[31m-#>[m
-[31m-    [CmdletBinding(PositionalBinding=$false)]  # Add cmdlet features.[m
-[31m-    Param ([m
-[31m-        # Define parameters below, each separated by a comma[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$True)][m
-[31m-        [ValidateSet('Copy', 'Move', 'Offset')][m
-[31m-        [string]$Command,[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [switch]$DryRun,[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [switch]$Force,[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [string]$TargetFolder = 'd:\users\public\pictures',[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [string[]]$ExcludeTargetFolder = '',[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [string[]]$Filter = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [string]$SubFolder = '',[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [string]$Suffix = '',[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [DateTime]$MinDate = (New-Object System.DateTime(1900,1,1)),[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [DateTime]$MaxDate = (New-Object System.DateTime(2500,1,1)),[m
-[31m-[m
-[31m-        [Parameter(Mandatory=$False)][m
-[31m-        [int]$Offsethours = 0[m
-[31m-[m
-[31m-    )[m
-[31m-[m
-[31m-    Begin {[m
-[31m-        # Start of the BEGIN block.[m
-[31m-        Write-Verbose -Message "Starting [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] with parameters:"[m
-[31m-        Write-Verbose (@{[m
-[31m-            Command             = $Command            ;[m
-[31m-            DryRun              = $DryRun             ;[m
-[31m-            Force               = $Force              ;[m
-[31m-            TargetFolder        = $TargetFolder       ;[m
-[31m-            ExcludeTargetFolder = $ExcludeTargetFolder;[m
-[31m-            Filter              = $Filter             ;[m
-[31m-            SubFolder           = $SubFolder          ;[m
-[31m-            Suffix              = $Suffix             ;[m
-[31m-            MinDate             = $MinDate            ;[m
-[31m-            MaxDate             = $MaxDate            ;[m
-[31m-            Offsethours         = $Offsethours[m
-[31m-        } | Out-String)[m
-[31m-[m
-[31m-    } # End Begin block[m
-[31m-[m
-[31m-    Process {[m
-[31m-        Function Convert-Statistics {[m
-[31m-        param([m
-[31m-            [parameter(ValueFromPipeline=$true)][m
-[31m-            [System.IO.FileInfo][m
-[31m-            $file[m
-[31m-        )[m
-[31m-            Begin{[m
-[31m-                $countFiles = 0[m
-[31m-                $totalSize = 0[m
-[31m-            }[m
-[31m- [m
-[31m-            PROCESS[m
-[31m-            {[m
-[31m-                $totalSize += $file.Length[m
-[31m-                $countFiles++;[m
-[31m-                echo @{File = $file; TotalSize = $totalSize}[m
-[31m-            }[m
-[31m-        }[m
-[31m-[m
-[31m-        [m
-[31m-        dir $Filter -Recurse `[m
-[31m-            | Where-Object -Property CreationTime -GE $MinDate `[m
-[31m-            | Where-Object -Property CreationTime -LE $MaxDate `[m
-[31m-            | Convert-Statistics `[m
-[31m-            | Format-Table[m
-[31m-            # | Where-Object -FilterScript {echo $_}[m
-[31m-[m
-[31m-    } # End of PROCESS block.[m
-[31m-[m
-[31m-    End {[m
-[31m-        # Start of END block.[m
-[31m-        Write-Verbose -Message "Entering the END block [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)]."[m
-[31m- [m
-[31m-        # Add additional code here.[m
-[31m- [m
-[31m-    } # End of the END Block.[m
-[31m-[m
-[31m-}[m
-[31m-[m
-[32m+[m[32mFunction Import-Pictures {[m[41m[m
-[32m+[m[32m<#[m[41m[m
-[32m+[m[32m.SYNOPSIS[m[41m[m
-[32m+[m[32m    This function imports and orders pictures from a memory card into computer folder[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.DESCRIPTION[m[41m[m
-[32m+[m[32m    This function imports pictures and other acceptable files from the current working folder[m[41m[m
-[32m+[m[32m    (usually a memory card), and imports them in a computer folder.[m[41m[m
-[32m+[m[32m    Onte way, the filenames are timestamped, i.e. the date and time of creation of the file are used to[m[41m [m
-[32m+[m[32m    prefix the file name.[m[41m[m
-[32m+[m[32m    Additionnaly, the files are arranged under the chosen target folder in a directory tree similar to[m[41m[m
-[32m+[m[32m        ...\yyyy\yyyymm\yyyymmdd[m[41m[m
-[32m+[m[32m    If such a directory does not exist, it is created[m[41m[m
-[32m+[m[32m    If such a directory does exist, or a similar directory with a name or a description suffix after the day date, this directory is used[m[41m[m
-[32m+[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER Command[m[41m[m
-[32m+[m[32m    Indicates which action is to be performed:[m[41m[m
-[32m+[m[32m        Copy: the pictures are copied from the source to the target[m[41m[m
-[32m+[m[32m        Move: the pictures are moved from the source to the target, i.e. they are deleted from the source[m[41m[m
-[32m+[m[32m        Offset: the timestamps included in the names of the files in the the target folder are offset by a provided nmber of hours[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER DryRun[m[41m[m
-[32m+[m[32m    The action is not actually performed[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER Force[m[41m[m
-[32m+[m[32m    Existing files on the target folder are overwritten (without further confirmation)[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER TargetFolder[m[41m[m
-[32m+[m[32m    The root folder targeted by the import[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER ExcludeTargetFolder[m[41m[m
-[32m+[m[32m    These folders are not to be used as target, even if the day date matches.[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER SubFolder[m[41m[m
-[32m+[m[32m    If provided, this value is used as an additional directory level under the year level.[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER Suffix[m[41m[m
-[32m+[m[32m    If provided, this value is added to the file names (for instance to identify the camera used to shoot the pictures)[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER MinDate[m[41m[m
-[32m+[m[32m    The files created before this date are not imported[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER MaxDate[m[41m[m
-[32m+[m[32m    The files created before after date are not imported[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.PARAMETER Offset[m[41m[m
-[32m+[m[32m    The creation date of the files is offset by this number of hours before timestamping their names[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m.EXAMPLE[m[41m[m
-[32m+[m[32m    ...[m[41m[m
-[32m+[m[41m    [m
-[32m+[m[32m.NOTES[m[41m[m
-[32m+[m[32m    Author: Philippe Raemy[m[41m[m
-[32m+[m[32m    Last Edit: 2018-27-09[m[41m[m
-[32m+[m[32m    Version 1.0 - initial release[m[41m[m
-[32m+[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m#>[m[41m[m
-[32m+[m[32m    [CmdletBinding(PositionalBinding=$false)]  # Add cmdlet features.[m[41m[m
-[32m+[m[32m    Param ([m[41m[m
-[32m+[m[32m        # Define parameters below, each separated by a comma[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$True)][m[41m[m
-[32m+[m[32m        [ValidateSet('Copy', 'Move', 'Offset')][m[41m[m
-[32m+[m[32m        [string]$Command,[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [switch]$DryRun,[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [switch]$Force,[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [string]$TargetFolder = 'd:\users\public\pictures',[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [string[]]$ExcludeTargetFolder = '',[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [string[]]$Filter = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [string]$SubFolder = '',[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [string]$Suffix = '',[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [DateTime]$MinDate = (New-Object System.DateTime(1900,1,1)),[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [DateTime]$MaxDate = (New-Object System.DateTime(2500,1,1)),[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        [Parameter(Mandatory=$False)][m[41m[m
-[32m+[m[32m        [int]$Offsethours = 0[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    )[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    Begin {[m[41m[m
-[32m+[m[32m        # Start of the BEGIN block.[m[41m[m
-[32m+[m[32m        Write-Verbose -Message "Starting [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] with parameters:"[m[41m[m
-[32m+[m[32m        Write-Verbose (@{[m[41m[m
-[32m+[m[32m            Command             = $Command            ;[m[41m[m
-[32m+[m[32m            DryRun              = $DryRun             ;[m[41m[m
-[32m+[m[32m            Force               = $Force              ;[m[41m[m
-[32m+[m[32m            TargetFolder        = $TargetFolder       ;[m[41m[m
-[32m+[m[32m            ExcludeTargetFolder = $ExcludeTargetFolder;[m[41m[m
-[32m+[m[32m            Filter              = $Filter             ;[m[41m[m
-[32m+[m[32m            SubFolder           = $SubFolder          ;[m[41m[m
-[32m+[m[32m            Suffix              = $Suffix             ;[m[41m[m
-[32m+[m[32m            MinDate             = $MinDate            ;[m[41m[m
-[32m+[m[32m            MaxDate             = $MaxDate            ;[m[41m[m
-[32m+[m[32m            Offsethours         = $Offsethours[m[41m[m
-[32m+[m[32m        } | Out-String)[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    } # End Begin block[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    Process {[m[41m[m
-[32m+[m[32m        Function Convert-Statistics {[m[41m[m
-[32m+[m[32m        param([m[41m[m
-[32m+[m[32m            [parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,[m[41m[m
-[32m+[m[32m            [parameter(Mandatory=$true)]         [int]                $expectedSize,[m[41m[m
-[32m+[m[32m            [parameter(Mandatory=$true)]         [int]                $expectedCount[m[41m [m
-[32m+[m[32m        )[m[41m[m
-[32m+[m[32m            Begin{[m[41m[m
-[32m+[m[32m                $countFiles = 0[m[41m[m
-[32m+[m[32m                $totalSize = 0[m[41m[m
-[32m+[m[32m            }[m[41m[m
-[32m+[m[41m [m
-[32m+[m[32m            PROCESS[m[41m[m
-[32m+[m[32m            {[m[41m[m
-[32m+[m[32m                $totalSize += $file.Length[m[41m[m
-[32m+[m[32m                $countFiles++;[m[41m[m
-[32m+[m[32m                echo @{[m[41m[m
-[32m+[m[32m                    File           = $file;[m[41m [m
-[32m+[m[32m                    TotalSize      = $totalSize;[m[41m [m
-[32m+[m[32m                    Length         = $file.Length;[m[41m[m
-[32m+[m[32m                    Position       = $countFiles;[m[41m[m
-[32m+[m[32m                    ItemWeight     = ($file.Length) / $expectedSize;[m[41m[m
-[32m+[m[32m                    Progress       = $countFiles / $expectedCount;[m[41m[m
-[32m+[m[32m                    ProgressWeight = $totalSize / $expectedSize;[m[41m[m
-[32m+[m[32m                }[m[41m[m
-[32m+[m[32m            }[m[41m[m
-[32m+[m[32m        }[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m        $workAtHand = dir $Filter -Recurse `[m[41m[m
-[32m+[m[32m            | Where-Object -Property CreationTime -GE $MinDate `[m[41m[m
-[32m+[m[32m            | Where-Object -Property CreationTime -LE $MaxDate[m[41m[m
-[32m+[m[41m        [m
-[32m+[m[32m        $totalSize = $workAtHand | Measure -Property Length -Sum[m[41m[m
-[32m+[m[32m        $totalSize.Sum[m[41m[m
-[32m+[m[41m        [m
-[32m+[m[32m        $workAtHand `[m[41m[m
-[32m+[m[32m            | Convert-Statistics -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Format-Table[m[41m[m
-[32m+[m[41m        [m
-[32m+[m[41m[m
-[32m+[m[32m            # | Where-Object -FilterScript {echo $_}[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    } # End of PROCESS block.[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    End {[m[41m[m
-[32m+[m[32m        # Start of END block.[m[41m[m
-[32m+[m[32m        Write-Verbose -Message "Entering the END block [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)]."[m[41m[m
-[32m+[m[41m [m
-[32m+[m[32m        # Add additional code here.[m[41m[m
-[32m+[m[41m [m
-[32m+[m[32m    } # End of the END Block.[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m}[m[41m[m
-[32m+[m[41m[m
