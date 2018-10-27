@@ -117,7 +117,7 @@ Function Import-Pictures {
     } # End Begin block
 
     Process {
-        Function Convert-Statistics {
+        Function New-FileDetails     {
         param(
             [parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,
             [parameter(Mandatory=$true)]         [int64]              $expectedSize,
@@ -152,7 +152,7 @@ Function Import-Pictures {
         $totalSize.Sum
         
         $workAtHand `
-            | Convert-Statistics -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Format-Table
+            | New-FileDetails     -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Format-Table
         
 
             # | Where-Object -FilterScript {echo $_}
