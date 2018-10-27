@@ -135,6 +135,7 @@ Function Import-Pictures {
                 echo @{
                     TotalSize      = $totalSize; 
                     Length         = $file.Length;
+                    CreationTime      = $file.Length;
                     Position       = $countFiles;
                     ItemWeight     = ($file.Length) / $expectedSize;
                     Progress       = $countFiles / $expectedCount;
@@ -150,7 +151,40 @@ Function Import-Pictures {
         )
             PROCESS
             {
-                $f['Location'] = $f.file.FullName
+                $creationTime = $f.file.CreationTime
+                [ref] $creationTimeRef = $creationTime
+                $fileIsDated = $false
+                if($f.file.Name.Length -ge 15){
+                    $fileIsDated = [DateTime]::TryParseExact($f.file.Name.Substring(0, 15), `
+                        'yyyyMMdd_HHmmss', `
+                        [System.Globalization.CultureInfo]::InvariantCulture, `
+                        [System.Globalization.DateTimeStyles]::None,`
+                        $creationTimeRef)
+                    if($fileIsDated) { 
+                        $creationTime = $creationTimeRef.Value
+                    }
+                }
+
+                $filename = if($fileIsDated) {$f.file.Name} else {$creationTime.ToString("yyyyMMdd_HHmmss_") + $f.file.Name}
+
+                $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
+                # md $folderRoot -ErrorAction SilentlyContinue
+                if(Test-Path -Path $folderRoot){
+                    pushd $folderRoot
+                    $folder = dir -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue | select -First 1
+                    popd
+                }
+                else {
+                    $folder = $null
+                }
+                
+                echo "folderRoot is $folderRoot"
+                echo "folder is $folder"
+                if(-not $folder){
+                    $folder = [System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))
+                }
+                
+                $f['Location'] = [System.IO.Path]::Combine($folder, $filename)
                 echo $f
             }
         }
