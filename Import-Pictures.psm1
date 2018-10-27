@@ -145,6 +145,16 @@ Function Import-Pictures {
             }
         }
 
+        Function Invoke-Action{
+        param(
+            [parameter(ValueFromPipeline=$true)] $f
+        )
+            PROCESS
+            {
+                echo $f
+            }
+        }
+
         Function Resolve-Location{
         param(
             [parameter(ValueFromPipeline=$true)] $f
