@@ -144,34 +144,40 @@ Function Import-Pictures {
 
             PROCESS
             {
-                $doIt = $Force -or -not (Test-Path -Path $f.Location)
-                $verb = if($DryRun) {'would be'} else {'is'}
-                if($Command -eq 'Copy'){
-                    if($doIt) {
-                        $f['Message'] = "$($f.File) $verb copied to $($f.Location)."
-                        if(-not $DryRun) {
-                            $f.Location.Directory.Create()
-                            copy $f.File $f.Location.FullName
+                try{
+                    $doIt = $Force -or -not (Test-Path -Path $f.Location)
+                    $verb = if($DryRun) {'would be'} else {'is'}
+                    if($Command -eq 'Copy'){
+                        if($doIt) {
+                            $f['Message'] = "$($f.File) $verb copied to $($f.Location)."
+                            if(-not $DryRun) {
+                                $f.Location.Directory.Create()
+                                copy $f.File $f.Location.FullName
+                            }
+                        } else {
+                            $f['Message'] = "$($f.File) exists as $($f.Location)."
                         }
-                    } else {
-                        $f['Message'] = "$($f.File) exists as $($f.Location)."
+                    }
+                    elseif($Command -eq 'Move'){
+                        if($doIt) {
+                            $f['Message'] = "$($f.File) $verb moved to $($f.Location).";
+                            if(-not $DryRun) {
+                                $f.Location.Directory.Create()
+                                move $f.File $f.Location -Force
+                            }
+                        } else {
+                            if(-not $DryRun) {del $f.File}
+                            $f['Message'] = "$($f.File) $verb deleted";
+                        }
+                    }
+                    elseif($Command -eq 'Offfset'){
+                        $f['Message'] = "$($f.File) $verb renamed to $($f.Location).";
+                        if(-not $DryRun) {ren $f.File $f.Location -Force  }
                     }
                 }
-                elseif($Command -eq 'Move'){
-                    if($doIt) {
-                        $f['Message'] = "$($f.File) $verb moved to $($f.Location).";
-                        if(-not $DryRun) {
-                            $f.Location.Directory.Create()
-                            move $f.File $f.Location -Force
-                        }
-                    } else {
-                        if(-not $DryRun) {del $f.File}
-                        $f['Message'] = "$($f.File) $verb deleted";
-                    }
-                }
-                elseif($Command -eq 'Offfset'){
-                    $f['Message'] = "$($f.File) $verb renamed to $($f.Location).";
-                    if(-not $DryRun) {ren $f.File $f.Location -Force  }
+                catch
+                {
+                    $f['Message'] = "$($_.Exception.GetType().FullName): $($_.Exception.Message) while trying: $($f['Message'])."
                 }
                 return $f
             }
