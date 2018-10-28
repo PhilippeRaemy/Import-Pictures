@@ -181,8 +181,8 @@ Function Import-Pictures {
                         }
                     }
                     elseif($Command -eq 'Offset'){
-                        $f.Message = "$($f.File) $verb renamed to $($f.Location).";
-                        if(-not $DryRun) {ren $f.File $f.Location -Force  }
+                        $f.Message = "$($f.File) $verb renamed to $($f.Location.Name).";
+                        if(-not $DryRun) {ren $f.File $f.Location.Name -Force  }
                     }
                 }
                 catch
@@ -235,7 +235,8 @@ Function Import-Pictures {
 
                 $creationTime = $creationTime.AddHours($Offsethours)
 
-                $filename = if($fileIsDated) {$f.file.Name} else {$creationTime.ToString("yyyyMMdd_HHmmss_") + $f.file.Name}
+                $filename = if($fileIsDated) {$f.file.Name.Substring(15)} else {'_' + $f.file.Name}
+                $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $filename
 
                 $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
                 if(Test-Path -Path $folderRoot){
