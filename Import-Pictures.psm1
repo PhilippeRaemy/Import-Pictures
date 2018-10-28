@@ -96,9 +96,7 @@ Function Import-Pictures {
         ######################################################################################
         Function New-FileDetails{
             param(
-                [Parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,
-                [Parameter(Mandatory=$true)]         [int64]              $expectedSize,
-                [Parameter(Mandatory=$true)]         [int]                $expectedCount 
+                [Parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file
             )
             BEGIN
             {
@@ -115,9 +113,6 @@ Function Import-Pictures {
                     Length         = $file.Length;
                     CreationTime   = $file.Length;
                     Position       = $countFiles;
-                    ItemWeight     = ($file.Length) / $expectedSize;
-                    Progress       = $countFiles / $expectedCount;
-                    ProgressWeight = $totalSize / $expectedSize;
                     File           = $file; 
                 }
                 Write-Verbose "$file, $countFiles"
@@ -126,11 +121,26 @@ Function Import-Pictures {
         ######################################################################################
         Function Format-Output{
             param(
-                [Parameter(ValueFromPipeline=$true)] $f
+                [Parameter(ValueFromPipeline=$true)] $f,
+                [Parameter(Mandatory=$true)] [int64] $expectedSize,
+                [Parameter(Mandatory=$true)] [int]   $expectedCount
             )
+            BEGIN
+            {
+                $expectedSizeMb = [Math]::Round($expectedSize / 1048576, 1);
+                $line = ("{message}" + `
+                    "{newline}Progress {position}/$expectedCount ({progress}%)" + `
+                    " - {totalSize}Mb/$($expectedSizeMb)Mb ({progressMb}%)" + `
+                    "{newline}" `
+                    ).Replace('{newline}', [System.Environment]::NewLine)
+            }
             PROCESS
             {
-                return $f
+               return $line.Replace('{message}', $f.Message) `
+                -replace '{position}' , $f.Position `
+                -replace '{totalSize}', [Math]::Round($f.TotalSize/1048576, 1) `
+                -replace '{progress}' , [Math]::Round(100*$f.Position/$expectedCount, 2) `
+                -replace '{progressMb}',[Math]::Round(100*$f.TotalSize/$expectedSize, 1)
             }
         }
         ######################################################################################
@@ -254,7 +264,7 @@ Function Import-Pictures {
         $totalSize = $workAtHand | Measure -Property Length -Sum
         
         $workAtHand `
-            | New-FileDetails  -expectedSize $totalSize.Sum -expectedCount $totalSize.Count `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder `            | Invoke-Action -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output `
+            | New-FileDetails `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder `            | Invoke-Action    -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output    -ExpectedSize $totalSize.Sum -ExpectedCount $totalSize.Count `
             | Format-Table
         
     } # End of PROCESS block.
