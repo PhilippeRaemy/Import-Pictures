@@ -180,7 +180,7 @@ Function Import-Pictures {
                             $f.Message = "$($f.File) $verb deleted";
                         }
                     }
-                    elseif($Command -eq 'Offfset'){
+                    elseif($Command -eq 'Offset'){
                         $f.Message = "$($f.File) $verb renamed to $($f.Location).";
                         if(-not $DryRun) {ren $f.File $f.Location -Force  }
                     }
