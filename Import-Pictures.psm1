@@ -213,7 +213,7 @@ Function Import-Pictures {
                 [Parameter(ValueFromPipeline=$True)] $f,
                 [Parameter(Mandatory=$True)]                      [string]   $TargetFolder,
                 [Parameter(Mandatory=$True)] [AllowEmptyString()] [string]   $SubFolder,
-                [Parameter(Mandatory=$True)]                      [string[]] $ExcludeTargetFolder,
+                [Parameter(Mandatory=$True)] [AllowNull()]        [string[]] $ExcludeTargetFolder,
                 [Parameter(Mandatory=$True)]                      [int]      $Offsethours
             )
             PROCESS
