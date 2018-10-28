@@ -136,7 +136,7 @@ Function Import-Pictures {
 
         Function Invoke-Action{
             param(
-                [Parameter(ValueFromPipeline=$true)] $f,
+                [Parameter(ValueFromPipeline=$true)]   $f,
                 [Parameter(Mandatory=$True )] [string] $Command,
                 [Parameter(Mandatory=$False)] [bool]   $DryRun,
                 [Parameter(Mandatory=$False)] [bool]   $Force
@@ -145,6 +145,29 @@ Function Import-Pictures {
 
             PROCESS
             {
+                $doIt = $Force -or -not (Test-Path -Path $f.Location)
+                $verb = if($DryRun) {'would be'} else {'is'}
+                if($Command -eq 'Copy'){
+                    if($doIt) {
+                        if(-not $DryRun) {copy $f.File $f.Location }
+                        $f['Message'] = "$($f.File) $verb copied to $($f.Location)."
+                    } else {
+                        $f['Message'] = "$($f.File) exists as $($f.Location)."
+                    }
+                }
+                elsif($Command -eq 'Move'){
+                    if($doIt) {
+                        if(-not $DryRun) {move $f.File $f.Location -Force  }
+                        $f['Message'] = "$($f.File) $verb moved to $($f.Location).";
+                    } else {
+                        if(-not $DryRun) {del $f.File}
+                        $f['Message'] = "$($f.File) $verb deleted";
+                    }
+                }
+                elsif($Command -eq 'Offfset'){
+                    if(-not $DryRun) {ren $f.File $f.Location -Force  }
+                    $f['Message'] = "$($f.File) $verb renamed to $($f.Location).";
+                }
                 $f['Message'] = 'Processed';
                 return $f
             }
