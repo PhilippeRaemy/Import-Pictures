@@ -140,7 +140,6 @@ Function Import-Pictures {
                 [Parameter(Mandatory=$True )] [string] $Command,
                 [Parameter(Mandatory=$False)] [bool]   $DryRun,
                 [Parameter(Mandatory=$False)] [bool]   $Force
-
             )
 
             PROCESS
@@ -155,7 +154,7 @@ Function Import-Pictures {
                         $f['Message'] = "$($f.File) exists as $($f.Location)."
                     }
                 }
-                elsif($Command -eq 'Move'){
+                elseif($Command -eq 'Move'){
                     if($doIt) {
                         if(-not $DryRun) {move $f.File $f.Location -Force  }
                         $f['Message'] = "$($f.File) $verb moved to $($f.Location).";
@@ -164,11 +163,10 @@ Function Import-Pictures {
                         $f['Message'] = "$($f.File) $verb deleted";
                     }
                 }
-                elsif($Command -eq 'Offfset'){
+                elseif($Command -eq 'Offfset'){
                     if(-not $DryRun) {ren $f.File $f.Location -Force  }
                     $f['Message'] = "$($f.File) $verb renamed to $($f.Location).";
                 }
-                $f['Message'] = 'Processed';
                 return $f
             }
         }
@@ -234,7 +232,7 @@ Function Import-Pictures {
                     $folder = [System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))
                 }
                 
-                $f['Location'] = [System.IO.Path]::Combine($folder, $filename)
+                $f['Location'] = New-Object System.IO.FileInfo([System.IO.Path]::Combine($folder, $filename))
                 Write-Output $f
             }
         }
