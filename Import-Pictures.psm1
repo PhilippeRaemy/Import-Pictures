@@ -211,9 +211,10 @@ Function Import-Pictures {
         Function Resolve-Location{
             param(
                 [Parameter(ValueFromPipeline=$True)] $f,
-                [Parameter(Mandatory=$True)] [string]  $TargetFolder,
-                [Parameter(Mandatory=$True)] [AllowEmptyString()] [string]  $SubFolder,
-                [Parameter(Mandatory=$True)] [string[]]$ExcludeTargetFolder
+                [Parameter(Mandatory=$True)]                      [string]   $TargetFolder,
+                [Parameter(Mandatory=$True)] [AllowEmptyString()] [string]   $SubFolder,
+                [Parameter(Mandatory=$True)]                      [string[]] $ExcludeTargetFolder,
+                [Parameter(Mandatory=$True)]                      [int]      $Offsethours
             )
             PROCESS
             {
@@ -231,6 +232,8 @@ Function Import-Pictures {
                         $creationTime = $creationTimeRef.Value
                     }
                 }
+
+                $creationTime = $creationTime.AddHours($Offsethours)
 
                 $filename = if($fileIsDated) {$f.file.Name} else {$creationTime.ToString("yyyyMMdd_HHmmss_") + $f.file.Name}
 
@@ -264,7 +267,7 @@ Function Import-Pictures {
         $totalSize = $workAtHand | Measure -Property Length -Sum
 
         $workAtHand `
-            | New-FileDetails `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder `            | Invoke-Action    -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output    -ExpectedSize $totalSize.Sum -ExpectedCount $totalSize.Count `
+            | New-FileDetails `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder -Offsethours $Offsethours `            | Invoke-Action    -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output    -ExpectedSize $totalSize.Sum -ExpectedCount $totalSize.Count `
             | Format-Table
 
     } # End of PROCESS block.
