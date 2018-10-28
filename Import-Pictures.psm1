@@ -93,7 +93,7 @@ Function Import-Pictures {
     } # End Begin block
 
     Process {
-
+        ######################################################################################
         Function New-FileDetails{
             param(
                 [Parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file,
@@ -123,7 +123,7 @@ Function Import-Pictures {
                 Write-Verbose "$file, $countFiles"
             }
         }
-
+        ######################################################################################
         Function Format-Output{
             param(
                 [Parameter(ValueFromPipeline=$true)] $f
@@ -133,7 +133,7 @@ Function Import-Pictures {
                 return $f
             }
         }
-
+        ######################################################################################
         Function Invoke-Action{
             param(
                 [Parameter(ValueFromPipeline=$true)]   $f,
@@ -182,7 +182,7 @@ Function Import-Pictures {
                 return $f
             }
         }
-
+        ######################################################################################
         Function Where-NotExcluded{
             param(
                 [Parameter(ValueFromPipeline=$true)] $f,     
@@ -197,8 +197,7 @@ Function Import-Pictures {
             }
             return $f;
         }
-
-
+        ######################################################################################
         Function Resolve-Location{
             param(
                 [Parameter(ValueFromPipeline=$true)] $f,
@@ -247,7 +246,7 @@ Function Import-Pictures {
                 Write-Output $f
             }
         }
-
+        ######################################################################################
         $workAtHand = dir $Filter -Recurse `
             | Where-Object -Property CreationTime -GE $MinDate `
             | Where-Object -Property CreationTime -LE $MaxDate
