@@ -6,7 +6,7 @@ Function Import-Pictures {
 .DESCRIPTION
     This function imports pictures and other acceptable files from the current working folder
     (usually a memory card), and imports them in a computer folder.
-    Onte way, the filenames are timestamped, i.e. the date and time of creation of the file are used to 
+    Onte way, the filenames are timestamped, i.e. the date and time of creation of the file are used to
     prefix the file name.
     Additionnaly, the files are arranged under the chosen target folder in a directory tree similar to
         ...\yyyy\yyyymm\yyyymmdd
@@ -49,7 +49,7 @@ Function Import-Pictures {
 
 .EXAMPLE
     ...
-    
+
 .NOTES
     Author: Philippe Raemy
     Last Edit: 2018-27-09
@@ -96,24 +96,24 @@ Function Import-Pictures {
         ######################################################################################
         Function New-FileDetails{
             param(
-                [Parameter(ValueFromPipeline=$true)] [System.IO.FileInfo] $file
+                [Parameter(ValueFromPipeline=$True)] [System.IO.FileInfo] $file
             )
             BEGIN
             {
                 $countFiles = 0
                 $totalSize = [int64]0
             }
- 
+
             PROCESS
             {
                 $totalSize += $file.Length
                 $countFiles++;
                 Write-Output @{
-                    TotalSize      = $totalSize; 
+                    TotalSize      = $totalSize;
                     Length         = $file.Length;
                     CreationTime   = $file.Length;
                     Position       = $countFiles;
-                    File           = $file; 
+                    File           = $file;
                 }
                 Write-Verbose "$file, $countFiles"
             }
@@ -121,9 +121,9 @@ Function Import-Pictures {
         ######################################################################################
         Function Format-Output{
             param(
-                [Parameter(ValueFromPipeline=$true)] $f,
-                [Parameter(Mandatory=$true)] [int64] $expectedSize,
-                [Parameter(Mandatory=$true)] [int]   $expectedCount
+                [Parameter(ValueFromPipeline=$True)] $f,
+                [Parameter(Mandatory=$True)] [int64] $expectedSize,
+                [Parameter(Mandatory=$True)] [int]   $expectedCount
             )
             BEGIN
             {
@@ -146,10 +146,10 @@ Function Import-Pictures {
         ######################################################################################
         Function Invoke-Action{
             param(
-                [Parameter(ValueFromPipeline=$true)]   $f,
-                [Parameter(Mandatory=$True )] [string] $Command,
-                [Parameter(Mandatory=$False)] [bool]   $DryRun,
-                [Parameter(Mandatory=$False)] [bool]   $Force
+                [Parameter(ValueFromPipeline=$True)]   $f,
+                [Parameter(Mandatory=$True)] [string] $Command,
+                [Parameter(Mandatory=$True)] [bool]   $DryRun,
+                [Parameter(Mandatory=$True)] [bool]   $Force
             )
 
             PROCESS
@@ -195,8 +195,8 @@ Function Import-Pictures {
         ######################################################################################
         Function Where-NotExcluded{
             param(
-                [Parameter(ValueFromPipeline=$true)] $f,     
-                [Parameter(Mandatory=$False)] [string[]]$ExcludeTargetFolder
+                [Parameter(ValueFromPipeline=$True)] $f,
+                [Parameter(Mandatory=$True)] [string[]]$ExcludeTargetFolder
             )
 
             if($ExcludeTargetFolder){
@@ -210,10 +210,10 @@ Function Import-Pictures {
         ######################################################################################
         Function Resolve-Location{
             param(
-                [Parameter(ValueFromPipeline=$true)] $f,
-                [Parameter(Mandatory=$False)] [string]  $TargetFolder, 
-                [Parameter(Mandatory=$False)] [string]  $SubFolder   ,     
-                [Parameter(Mandatory=$False)] [string[]]$ExcludeTargetFolder
+                [Parameter(ValueFromPipeline=$True)] $f,
+                [Parameter(Mandatory=$True)] [string]  $TargetFolder,
+                [Parameter(Mandatory=$True)] [AllowEmptyString()] [string]  $SubFolder,
+                [Parameter(Mandatory=$True)] [string[]]$ExcludeTargetFolder
             )
             PROCESS
             {
@@ -227,7 +227,7 @@ Function Import-Pictures {
                         [System.Globalization.CultureInfo]::InvariantCulture, `
                         [System.Globalization.DateTimeStyles]::None,`
                         $creationTimeRef)
-                    if($fileIsDated) { 
+                    if($fileIsDated) {
                         $creationTime = $creationTimeRef.Value
                     }
                 }
@@ -245,13 +245,13 @@ Function Import-Pictures {
                 else {
                     $folder = $null
                 }
-                
+
                 Write-Verbose "folderRoot is $folderRoot"
                 Write-Verbose "folder is $folder"
                 if(-not $folder){
                     $folder = [System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))
                 }
-                
+
                 $f.Location = New-Object System.IO.FileInfo([System.IO.Path]::Combine($folder, $filename))
                 Write-Output $f
             }
@@ -260,21 +260,21 @@ Function Import-Pictures {
         $workAtHand = dir $Filter -Recurse `
             | Where-Object -Property CreationTime -GE $MinDate `
             | Where-Object -Property CreationTime -LE $MaxDate
-        
+
         $totalSize = $workAtHand | Measure -Property Length -Sum
-        
+
         $workAtHand `
             | New-FileDetails `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder `            | Invoke-Action    -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output    -ExpectedSize $totalSize.Sum -ExpectedCount $totalSize.Count `
             | Format-Table
-        
+
     } # End of PROCESS block.
 
     End {
         # Start of END block.
         # Write-Verbose -Message "Entering the END block [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)]."
- 
+
         # Add additional code here.
- 
+
     } # End of the END Block.
 
 }
