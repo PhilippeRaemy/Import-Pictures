@@ -1,42 +1,51 @@
 Function Import-Pictures {
 <#
 .SYNOPSIS
-    This function imports and orders pictures from a memory card into computer folder
+    This function imports and orders pictures from a memory card into 
+    a local folder
 
 .DESCRIPTION
-    This function imports pictures and other acceptable files from the current working folder
-    (usually a memory card), and imports them in a computer folder.
-    Onte way, the filenames are timestamped, i.e. the date and time of creation of the file are used to
-    prefix the file name.
-    Additionnaly, the files are arranged under the chosen target folder in a directory tree similar to
+    This function imports pictures and other acceptable files from the 
+    current working folder (usually a memory card), and imports them in 
+    a local folder.
+    On the way, the filenames are timestamped, i.e. the date and time of 
+    creation of the file are used to prefix the file name, inan ISO format.
+    Additionnaly, the files are arranged under the chosen target folder 
+    in a directory tree similar to
         ...\yyyy\yyyymm\yyyymmdd
-    If such a directory does not exist, it is created
-    If such a directory does exist, or a similar directory with a name or a description suffix after the day date, this directory is used
+    If such a directory does not exist, it is created.
+    If such a directory does exist, or a similar directory with a name or 
+    a description suffix after the day date, this directory is used.
 
 
 .PARAMETER Command
     Indicates which action is to be performed:
-        Copy: the pictures are copied from the source to the target
-        Move: the pictures are moved from the source to the target, i.e. they are deleted from the source
-        Offset: the timestamps included in the names of the files in the the target folder are offset by a provided nmber of hours
+        Copy: the pictures are copied from the source to the target.
+        Move: the pictures are moved from the source to the target, i.e. 
+            they are deleted from the source.
+        Offset: the timestamps included in the names of the files in 
+            the target folder are offset by a provided nmber of hours.
 
 .PARAMETER DryRun
     The action is not actually performed
 
 .PARAMETER Force
-    Existing files on the target folder are overwritten (without further confirmation)
+    Any existing file on the target folder will be overwritten (without further 
+    confirmation)
 
 .PARAMETER TargetFolder
-    The root folder targeted by the import
+    The root folder targeted by the import.
 
 .PARAMETER ExcludeTargetFolder
     These folders are not to be used as target, even if the day date matches.
 
 .PARAMETER SubFolder
-    If provided, this value is used as an additional directory level under the year level.
+    If provided, this value is used as an additional directory level under 
+    the year level.
 
 .PARAMETER Suffix
-    If provided, this value is added to the file names (for instance to identify the camera used to shoot the pictures)
+    If provided, this value is added to the file names (for instance to 
+    identify the camera used to shoot the pictures)
 
 .PARAMETER MinDate
     The files created before this date are not imported
@@ -45,7 +54,8 @@ Function Import-Pictures {
     The files created before after date are not imported
 
 .PARAMETER Offset
-    The creation date of the files is offset by this number of hours before timestamping their names
+    The creation date of the files is offset by this number of hours before 
+    timestamping their names
 
 .EXAMPLE
     ...
