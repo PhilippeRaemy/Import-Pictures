@@ -52,8 +52,8 @@ Function Import-Pictures {
 
 .NOTES
     Author: Philippe Raemy
-    Last Edit: 2018-27-09
-    Version 1.0 - initial release
+    Last Edit: 2018-11-02
+    Version 0.1 - initial release
 
 
 #>
