@@ -248,7 +248,8 @@ Function Import-Pictures {
                 $creationTime = $creationTime.AddHours($Offsethours)
                 
                 $filename = if($fileIsDated) {$f.file.Name.Replace($matches[0], '')} else {$f.file.Name}
-                $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + '_' + $filename
+                $separator = if($filename.Substring(1, 0) -ne '_') {'_'} else {''}
+                $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $separator + $filename
 
                 $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
                 if(Test-Path -Path $folderRoot){
@@ -263,7 +264,8 @@ Function Import-Pictures {
                 Write-Verbose "folderRoot is $folderRoot"
                 Write-Verbose "folder is $folder"
                 if(-not $folder){
-                    $folder = ([System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))).FullName
+                    $folder = [System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))
+                    Write-Verbose "new folder is $folder"
                 }
 
                 $f.Location = New-Object System.IO.FileInfo([System.IO.Path]::Combine($folder, $filename))
