@@ -232,8 +232,9 @@ Function Import-Pictures {
                 $creationTime = $f.file.CreationTime
                 [ref] $creationTimeRef = $creationTime
                 $fileIsDated = $false
-                if($f.file.Name.Length -ge 15){
-                    $fileIsDated = [DateTime]::TryParseExact($f.file.Name.Substring(0, 15), `
+                $DateInName = $f.file.Name -match '(\d{8})[^\d](\d{4,6})'
+                if($DateInName){
+                    $fileIsDated = [DateTime]::TryParseExact("$($matches[1])_$($matches[2])", `
                         'yyyyMMdd_HHmmss', `
                         [System.Globalization.CultureInfo]::InvariantCulture, `
                         [System.Globalization.DateTimeStyles]::None,`
@@ -244,9 +245,9 @@ Function Import-Pictures {
                 }
 
                 $creationTime = $creationTime.AddHours($Offsethours)
-
-                $filename = if($fileIsDated) {$f.file.Name.Substring(15)} else {'_' + $f.file.Name}
-                $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $filename
+                
+                $filename = if($fileIsDated) {$f.file.Name.Replace($matches[0], '')} else {$f.file.Name}
+                $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + '_' + $filename
 
                 $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
                 if(Test-Path -Path $folderRoot){
