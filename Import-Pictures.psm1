@@ -251,11 +251,9 @@ Function Import-Pictures {
 
                 $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
                 if(Test-Path -Path $folderRoot){
-                    pushd $folderRoot
-                    $folder = dir -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue `
-                        | Where-NotExcluded $ExcludeTargetFolder `
+                    $folder = dir $folderRoot -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue `
+                        | Where-NotExcluded -ExcludeTargetFolder $ExcludeTargetFolder `
                         | select -First 1
-                    popd
                 }
                 else {
                     $folder = $null
