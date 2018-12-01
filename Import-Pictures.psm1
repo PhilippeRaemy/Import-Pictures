@@ -147,9 +147,9 @@ Function Import-Pictures {
                $progressMb = 100*$f.TotalSize/$expectedSize;
                $status = $progress `
                     -replace '{position}'  , $f.Position `
-                    -replace '{totalSize}' , [Math]::Round($f.TotalSize/1048576, 1) `
-                    -replace '{progress}'  , [Math]::Round(100*$f.Position/$expectedCount, 2) `
-                    -replace '{progressMb}', [Math]::Round($progressMb, 1)
+                    -replace '{totalSize}' , ('{0:N1}' -f [Math]::Round($f.TotalSize/1048576, 1)) `
+                    -replace '{progress}'  , ('{0:N2}' -f [Math]::Round(100*$f.Position/$expectedCount, 2)) `
+                    -replace '{progressMb}', ('{0:N1}' -f [Math]::Round($progressMb, 1))
                Write-Progress -Activity $activity -PercentComplete $progressMb -Status $status
                return $f.Message
             }
