@@ -133,24 +133,25 @@ Function Import-Pictures {
             param(
                 [Parameter(ValueFromPipeline=$True)] $f,
                 [Parameter(Mandatory=$True)] [int64] $expectedSize,
-                [Parameter(Mandatory=$True)] [int]   $expectedCount
+                [Parameter(Mandatory=$True)] [int]   $expectedCount,
+                [Parameter(Mandatory=$True)] [string]$Activity
             )
             BEGIN
             {
                 $expectedSizeMb = [Math]::Round($expectedSize / 1048576, 1);
-                $line = ("{message}" + `
-                    "{newline}Progress {position}/$expectedCount ({progress}%)" + `
-                    " - {totalSize}Mb/$($expectedSizeMb)Mb ({progressMb}%)" + `
-                    "{newline}" `
-                    ).Replace('{newline}', [System.Environment]::NewLine)
+                $progress = "Progress {position}/$expectedCount ({progress}%)" + `
+                    " - {totalSize}Mb/$($expectedSizeMb)Mb ({progressMb}%)";
             }
             PROCESS
             {
-               return $line.Replace('{message}', $f.Message) `
-                -replace '{position}' , $f.Position `
-                -replace '{totalSize}', [Math]::Round($f.TotalSize/1048576, 1) `
-                -replace '{progress}' , [Math]::Round(100*$f.Position/$expectedCount, 2) `
-                -replace '{progressMb}',[Math]::Round(100*$f.TotalSize/$expectedSize, 1)
+               $progressMb = 100*$f.TotalSize/$expectedSize;
+               $status = $progress `
+                    -replace '{position}'  , $f.Position `
+                    -replace '{totalSize}' , [Math]::Round($f.TotalSize/1048576, 1) `
+                    -replace '{progress}'  , [Math]::Round(100*$f.Position/$expectedCount, 2) `
+                    -replace '{progressMb}', [Math]::Round($progressMb, 1)
+               Write-Progress -Activity $activity -PercentComplete $progressMb -Status $status
+               return $f.Message
             }
         }
         ######################################################################################
@@ -277,7 +278,7 @@ Function Import-Pictures {
         $totalSize = $workAtHand | Measure -Property Length -Sum
 
         $workAtHand `
-            | New-FileDetails `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder -Offsethours $Offsethours `            | Invoke-Action    -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output    -ExpectedSize $totalSize.Sum -ExpectedCount $totalSize.Count `
+            | New-FileDetails `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder -Offsethours $Offsethours `            | Invoke-Action    -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output    -ExpectedSize $totalSize.Sum -ExpectedCount $totalSize.Count -Activity "Import-Pictures $Command..." `
             | Format-Table
 
     } # End of PROCESS block.
