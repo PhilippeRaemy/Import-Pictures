@@ -206,7 +206,7 @@ Function Import-Pictures {
         Function Where-NotExcluded{
             param(
                 [Parameter(ValueFromPipeline=$True)] $f,
-                [Parameter(Mandatory=$True)] [string[]]$ExcludeTargetFolder
+                [Parameter(Mandatory=$True)] [AllowNull()] [string[]]$ExcludeTargetFolder
             )
 
             if($ExcludeTargetFolder){
