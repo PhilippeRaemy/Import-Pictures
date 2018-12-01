@@ -252,9 +252,9 @@ Function Import-Pictures {
 
                 $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
                 if(Test-Path -Path $folderRoot){
-                    $folder = dir $folderRoot -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue `
+                    $folder = (dir $folderRoot -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue `
                         | Where-NotExcluded -ExcludeTargetFolder $ExcludeTargetFolder `
-                        | select -First 1
+                        | select -First 1).FullName
                 }
                 else {
                     $folder = $null
@@ -263,7 +263,7 @@ Function Import-Pictures {
                 Write-Verbose "folderRoot is $folderRoot"
                 Write-Verbose "folder is $folder"
                 if(-not $folder){
-                    $folder = [System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))
+                    $folder = ([System.IO.Path]::Combine($folderRoot, $creationTime.ToString('yyyyMM'), $creationTime.ToString('yyyyMMdd'))).FullName
                 }
 
                 $f.Location = New-Object System.IO.FileInfo([System.IO.Path]::Combine($folder, $filename))
@@ -278,7 +278,7 @@ Function Import-Pictures {
         $totalSize = $workAtHand | Measure -Property Length -Sum
 
         $workAtHand `
-            | New-FileDetails `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder -Offsethours $Offsethours `            | Invoke-Action    -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output    -ExpectedSize $totalSize.Sum -ExpectedCount $totalSize.Count -Activity "Import-Pictures $Command..." `
+            | New-FileDetails `            | Resolve-Location -TargetFolder $TargetFolder -SubFolder $SubFolder -ExcludeTargetFolder $ExcludeTargetFolder -Offsethours $Offsethours `            | Invoke-Action    -Command $Command -DryRun $DryRun.IsPresent -Force $Force.IsPresent `            | Format-Output    -ExpectedSize $totalSize.Sum -ExpectedCount $totalSize.Count -Activity "Import-Pictures $(if($DryRun) {'Try '})$Command..." `
             | Format-Table
 
     } # End of PROCESS block.
