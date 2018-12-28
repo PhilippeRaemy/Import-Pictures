@@ -74,7 +74,7 @@ Function Import-Pictures {
         [Parameter(Mandatory=$False)] [switch]   $Force,
         [Parameter(Mandatory=$False)] [string]   $TargetFolder = 'd:\users\public\pictures',
         [Parameter(Mandatory=$False)] [string[]] $ExcludeTargetFolder,
-        [Parameter(Mandatory=$False)] [string[]] $Filter       = ('*.jpg', '*.jpeg', '*.mov', '*.mp?'),
+        [Parameter(Mandatory=$False)] [string[]] $Filter       = ('*.jpg', '*.jpeg', '*.mov', '*.mp?', '*.cr2'),
         [Parameter(Mandatory=$False)] [string]   $SubFolder    = '',
         [Parameter(Mandatory=$False)] [string]   $Suffix       = '',
         [Parameter(Mandatory=$False)] [DateTime] $MinDate      = (New-Object System.DateTime(1900,1,1)),
