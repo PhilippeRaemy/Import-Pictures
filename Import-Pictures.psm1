@@ -188,7 +188,7 @@ Function Import-Pictures {
                             }
                         } else {
                             if(-not $DryRun) {del $f.File}
-                            $f.Message = "$($f.File) $verb deleted";
+                            $f.Message = "$($f.File) exists as $($f.Location). It $verb deleted";
                         }
                     }
                     elseif($Command -eq 'Offset'){
@@ -207,13 +207,15 @@ Function Import-Pictures {
         Function Where-NotExcluded{
             param(
                 [Parameter(ValueFromPipeline=$True)] $f,
-                [Parameter(Mandatory=$True)] [AllowNull()] [string[]]$ExcludeTargetFolder
+                [Parameter(Mandatory=$True)] [AllowNull()] [string[]]$ExcludeTargetFolders
             )
 
-            if($ExcludeTargetFolder){
-                $split = $_.Split([System.IO.Path]::DirectorySeparatorChar)
-                if($ExcludeTargetFolder | %{$split -match $_ }){
-                    return;
+            if($f) {
+                if($ExcludeTargetFolders){
+                    $split = $f.FullName.Split([System.IO.Path]::DirectorySeparatorChar)
+                    if($ExcludeTargetFolders | %{$split -match $_ }){
+                        return;
+                    }
                 }
             }
             return $f;
