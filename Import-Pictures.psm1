@@ -251,7 +251,13 @@ Function Import-Pictures {
                 
                 $filename = if($fileIsDated) {$f.file.Name.Replace($matches[0], '')} else {$f.file.Name}
                 $separator = if($filename.Substring(1, 0) -ne '_') {'_'} else {''}
-                $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $separator + $filename
+
+                if ($filename -match $suffix){
+                    $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $separator + $filename
+                } else {
+                    $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $separator + $suffix + $separator + $filename
+                }
+
 
                 $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
                 if(Test-Path -Path $folderRoot){
@@ -296,3 +302,9 @@ Function Import-Pictures {
     } # End of the END Block.
 
 }
+
+# cd i:\
+# Import-Pictures -Command move -Suffix bleu -DryRun -ExcludeTargetFolder Fabienne
+
+
+
