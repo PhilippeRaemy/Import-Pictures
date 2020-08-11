@@ -247,7 +247,19 @@ Function Import-Pictures {
                     if($fileIsDated) {
                         $creationTime = $creationTimeRef.Value
                     }
-                }
+                } else {
+					$DateInName = $f.file.Name -match '(\d{8})'
+					if($DateInName){
+						$fileIsDated = [DateTime]::TryParseExact($matches[1], `
+							'yyyyMMdd', `
+							[System.Globalization.CultureInfo]::InvariantCulture, `
+							[System.Globalization.DateTimeStyles]::None,`
+							$creationTimeRef)
+						if($fileIsDated) {
+							$creationTime = $creationTimeRef.Value
+						}
+					}
+				}
 
                 $creationTime = $creationTime.AddHours($Offsethours)
                 
