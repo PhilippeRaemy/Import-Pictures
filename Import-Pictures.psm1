@@ -121,7 +121,8 @@ Function Import-Pictures {
                 Write-Output @{
                     TotalSize      = $totalSize;
                     Length         = $file.Length;
-                    CreationTime   = $file.Length;
+                    CreationTime   = $file.CreationTime;
+                    LastWriteTime  = $file.LastWriteTime;
                     Position       = $countFiles;
                     File           = $file;
                 }
@@ -232,7 +233,8 @@ Function Import-Pictures {
             PROCESS
             {
                 Write-Verbose "Resolve-Location: $($f.file) $($f.Position)"
-                $creationTime = $f.file.CreationTime
+				# Creation time might be the copy time, last write is a better indicator if before creation.
+                $creationTime = (($f.file.LastWriteTime, $f.file.CreationTime) | measure -Minimum).Minimum
                 [ref] $creationTimeRef = $creationTime
                 $fileIsDated = $false
                 $DateInName = $f.file.Name -match '(\d{8})[^\d](\d{4,6})'
