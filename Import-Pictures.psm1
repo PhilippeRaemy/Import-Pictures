@@ -72,7 +72,7 @@ Function Import-Pictures {
         [Parameter(Mandatory=$True )] [ValidateSet('Copy', 'Move', 'Offset')] [string]$Command,
         [Parameter(Mandatory=$False)] [switch]   $DryRun,
         [Parameter(Mandatory=$False)] [switch]   $Force,
-        [Parameter(Mandatory=$False)] [string]   $TargetFolder = 'd:\users\public\pictures',
+        [Parameter(Mandatory=$False)] [string]   $TargetFolder = '',
         [Parameter(Mandatory=$False)] [string[]] $ExcludeTargetFolder,
         [Parameter(Mandatory=$False)] [string[]] $Filter       = ('*.jpg', '*.jpeg', '*.mov', '*.mp?', '*.cr2'),
         [Parameter(Mandatory=$False)] [string]   $SubFolder    = '',
@@ -85,7 +85,13 @@ Function Import-Pictures {
 
     Begin {
         # Start of the BEGIN block.
-        Write-Verbose -Message "Starting [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] with Parameters:"
+        if($TargetFolder -eq '') {
+            if($env:computername -eq 'ZENBOOK') {$TargetFolder = 'C:\Users\Philippe\OneDrive - RL&Kids\Pictures\'}
+            elseif($env:computername -eq 'SERVER02') {$TargetFolder = 'd:\users\public\pictures'}
+            else {$TargetFolder = 'c:\users\public\pictures'}
+        }
+
+        Write-Verbose -Message "Starting [$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] on $($env:computername) with Parameters:"
         Write-Verbose (@{
             Command             = $Command            ;
             DryRun              = $DryRun             ;
