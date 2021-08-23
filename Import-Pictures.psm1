@@ -121,8 +121,7 @@ Function Import-Pictures {
                 Write-Output @{
                     TotalSize      = $totalSize;
                     Length         = $file.Length;
-                    CreationTime   = $file.CreationTime;
-                    LastWriteTime  = $file.LastWriteTime;
+                    CreationTime   = $file.Length;
                     Position       = $countFiles;
                     File           = $file;
                 }
@@ -189,7 +188,7 @@ Function Import-Pictures {
                             }
                         } else {
                             if(-not $DryRun) {del $f.File}
-                            $f.Message = "$($f.File) exists as $($f.Location). It $verb deleted";
+                            $f.Message = "$($f.File) $verb deleted";
                         }
                     }
                     elseif($Command -eq 'Offset'){
@@ -208,15 +207,13 @@ Function Import-Pictures {
         Function Where-NotExcluded{
             param(
                 [Parameter(ValueFromPipeline=$True)] $f,
-                [Parameter(Mandatory=$True)] [AllowNull()] [string[]]$ExcludeTargetFolders
+                [Parameter(Mandatory=$True)] [AllowNull()] [string[]]$ExcludeTargetFolder
             )
 
-            if($f) {
-                if($ExcludeTargetFolders){
-                    $split = $f.FullName.Split([System.IO.Path]::DirectorySeparatorChar)
-                    if($ExcludeTargetFolders | %{$split -match $_ }){
-                        return;
-                    }
+            if($ExcludeTargetFolder){
+                $split = $_.Split([System.IO.Path]::DirectorySeparatorChar)
+                if($ExcludeTargetFolder | %{$split -match $_ }){
+                    return;
                 }
             }
             return $f;
@@ -233,8 +230,7 @@ Function Import-Pictures {
             PROCESS
             {
                 Write-Verbose "Resolve-Location: $($f.file) $($f.Position)"
-				# Creation time might be the copy time, last write is a better indicator if before creation.
-                $creationTime = (($f.file.LastWriteTime, $f.file.CreationTime) | measure -Minimum).Minimum
+                $creationTime = $f.file.CreationTime
                 [ref] $creationTimeRef = $creationTime
                 $fileIsDated = $false
                 $DateInName = $f.file.Name -match '(\d{8})[^\d](\d{4,6})'
@@ -248,30 +244,24 @@ Function Import-Pictures {
                         $creationTime = $creationTimeRef.Value
                     }
                 } else {
-					$DateInName = $f.file.Name -match '(\d{8})'
-					if($DateInName){
-						$fileIsDated = [DateTime]::TryParseExact($matches[1], `
-							'yyyyMMdd', `
-							[System.Globalization.CultureInfo]::InvariantCulture, `
-							[System.Globalization.DateTimeStyles]::None,`
-							$creationTimeRef)
-						if($fileIsDated) {
-							$creationTime = $creationTimeRef.Value
-						}
-					}
-				}
+                    $DateInName = $f.file.Name -match '(\d{8})'
+                    if($DateInName){
+                        $fileIsDated = [DateTime]::TryParseExact($matches[1], `
+                            'yyyyMMdd', `
+                            [System.Globalization.CultureInfo]::InvariantCulture, `
+                            [System.Globalization.DateTimeStyles]::None,`
+                            $creationTimeRef)
+                        if($fileIsDated) {
+                            $creationTime = $creationTimeRef.Value
+                        }
+                    }
+                }
 
                 $creationTime = $creationTime.AddHours($Offsethours)
                 
                 $filename = if($fileIsDated) {$f.file.Name.Replace($matches[0], '')} else {$f.file.Name}
                 $separator = if($filename.Substring(1, 0) -ne '_') {'_'} else {''}
-
-                if ($filename -match $suffix){
-                    $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $separator + $filename
-                } else {
-                    $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $separator + $suffix + $separator + $filename
-                }
-
+                $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $separator + $filename
 
                 $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
                 if(Test-Path -Path $folderRoot){
@@ -316,9 +306,3 @@ Function Import-Pictures {
     } # End of the END Block.
 
 }
-
-# cd i:\
-# Import-Pictures -Command move -Suffix bleu -DryRun -ExcludeTargetFolder Fabienne
-
-
-
