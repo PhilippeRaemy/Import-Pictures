@@ -74,7 +74,7 @@ Function Import-Pictures {
         [Parameter(Mandatory=$False)] [switch]   $Force,
         [Parameter(Mandatory=$False)] [string]   $TargetFolder = '',
         [Parameter(Mandatory=$False)] [string[]] $ExcludeTargetFolder,
-        [Parameter(Mandatory=$False)] [string[]] $Filter       = ('*.jpg', '*.jpeg', '*.mov', '*.mp?', '*.cr2'),
+        [Parameter(Mandatory=$False)] [string[]] $Filter       = ('*.jpg', '*.jpeg', '*.mov', '*.mp?', '*.cr2', '*.webp', '*.avi', '*.wav'),
         [Parameter(Mandatory=$False)] [string]   $SubFolder    = '',
         [Parameter(Mandatory=$False)] [string]   $Suffix       = '',
         [Parameter(Mandatory=$False)] [DateTime] $MinDate      = (New-Object System.DateTime(1900,1,1)),
@@ -269,7 +269,7 @@ Function Import-Pictures {
                 $separator = if($filename.Substring(1, 0) -ne '_') {'_'} else {''}
                 $filename = $creationTime.ToString("yyyyMMdd_HHmmss") + $separator + $filename
 
-                $folderRoot = [System.IO.Path]::Combine($TargetFolder, $creationTime.ToString('yyyy'), $SubFolder)
+                $folderRoot = 				[System.IO.Path]::Combine($TargetFolder, $SubFolder, $creationTime.ToString('yyyy'))
                 if(Test-Path -Path $folderRoot){
                     $folder = (dir $folderRoot -Directory -Recurse $creationTime.ToString('yyyyMMdd*') -ErrorAction SilentlyContinue `
                         | Where-NotExcluded -ExcludeTargetFolder $ExcludeTargetFolder `
